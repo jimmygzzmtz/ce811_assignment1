@@ -253,6 +253,7 @@ if __name__ == '__main__':
 
     competitors = getCompetitors(sys.argv[2:])
     runner = CompetitionRunner(competitors, int(sys.argv[1]))
+    print(competitors)
     try:
         runner.main()
     except (KeyboardInterrupt, SystemExit):
