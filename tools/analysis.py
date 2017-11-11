@@ -31,12 +31,14 @@ if __name__ == '__main__':
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
 
+    n_processes = 1  # multiprocessing.cpu_count()
+
     print "Measuring performance of Resistance AI (SkepticBot) against bots of exact skill."
     print " - 10 total skill levels for spy and resistance."
     print " - 121 jobs run in total, for 250 games each."
-    print " - Using %i threads to run the evaluations...\n" % multiprocessing.cpu_count()
+    print " - Using %i threads to run the evaluations...\n" % n_processes
 
-    pool = multiprocessing.Pool(processes=multiprocessing.cpu_count())
+    pool = multiprocessing.Pool(processes=n_processes)
     results = {}
     for i, t in pool.map(main, itertools.product(range(11), range(11))):
         results[i] = float(t)

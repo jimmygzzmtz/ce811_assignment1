@@ -161,7 +161,8 @@ class CompetitionRunner(object):
             sys.stdout.write(text)
             sys.stdout.flush()
 
-        pool = multiprocessing.Pool(multiprocessing.cpu_count(), setup)
+        n_processes = 1  # multiprocessing.cpu_count()
+        pool = multiprocessing.Pool(n_processes, setup)
         # pool = itertools
         for i, stats in enumerate(pool.imap(play, self.listGameSelections())):
             for p, s in stats.items():
