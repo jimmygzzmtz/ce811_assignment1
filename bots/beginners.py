@@ -190,3 +190,6 @@ class Jammer(Bot):
             return self.index > spies[0].index
         return True
 
+
+
+
