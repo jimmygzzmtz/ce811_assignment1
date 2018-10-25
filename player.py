@@ -119,7 +119,6 @@ class Bot(Player):
 
     def onMissionComplete(self, sabotaged):
         """Callback once the players have been chosen.
-        @param selected     List of players that participated in the mission.
         @param sabotaged    Integer how many times the mission was sabotaged.
         """
         pass
