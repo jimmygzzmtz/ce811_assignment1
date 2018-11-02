@@ -183,7 +183,7 @@ class Bot(Player):
         """Constructor called before a game starts.  It's recommended you don't
         override this function and instead use onGameRevealed() to perform
         setup for your AI.
-        @param name     The public name of your bot.
+        @param game     the current game state
         @param index    Your own index in the player list.
         @param spy      Are you supposed to play as a spy?
         """
