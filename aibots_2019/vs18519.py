@@ -1,0 +1,87 @@
+from player import Bot
+import random
+
+class vs18519(Bot):
+
+	def onGameRevealed(self, players, spies):
+		self.players = players
+		self.spies = spies
+		self.SusTeamof2 = None
+		self.SusTeamof3 = None
+		
+
+		
+	def select(self, players, count):
+		if self.spy:
+			return [self] + random.sample(self.others(), count - 1)
+		else:
+			if self.game.turn==1:
+				return [self] + random.sample(self.others(), count - 1)
+			else:
+				if self.game.turn > 1 and self.SusTeamof2 != None and self.SusTeamof3 != None:
+					if(self.game.turn == 3 ):
+						Sus =[q for q in self.SusTeamof2]
+						NotSusMember = [p for p in self.others() if p not in self.SusTeamof2]
+						return [self] + random.sample(self.NotSusmember2(), count - 1)
+					else:
+						Sus =[q for q in self.SusTeamof3]
+						NotSusMember = [p for p in self.others() if p not in self.SusTeamof3]
+						return [self] + random.sample(self.NotSusmember2(), count - 1)
+				else:
+						return [self] + random.sample(self.others(), count - 1)
+
+
+	
+	
+	def vote(self, team):
+		
+		if self.game.leader:
+			return True																
+		elif self.spy:
+			spies = [s for s in self.game.team if s in self.spies]
+			if len(spies) > 0 :
+				return True
+		else:
+			if (len([q for q in self.game.team if q is self.sus])>0 and len(self.game.team)>2):
+				return False
+			elif (len([q for q in self.game.team if q is self.sus])==1 and len(self.game.team)==2 and (self in self.game.team)):
+				return True
+		
+	
+	def sabotage(self):
+	
+		if not self.spy:
+			return False
+		else:
+			if len(self.game.team)<=2 :
+				return False
+			else :
+				return True
+		
+	
+	def onMissionComplete(self, sabotaged):
+		if sabotaged:
+			if(self.game.turn==1 or self.game.turn==3 ):
+				self.SusTeamof2 = self.game.team
+			else:
+				self.SusTeamof3 = self.game.team
+		else:
+			self.SusTeamof2 = None
+			self.SusTeamof3 = None
+			return[self.SusTeamof2]+[self.SusTeamof3]
+
+	def NotSusmember2(self):
+			return [p for p in self.others() if p not in self.SusTeamof2]
+
+	def NotSusmember3(self):
+			return [p for p in self.others() if p not in self.SusTeamof3]
+	#def onGameComplete(self, win, spies):
+			
+		#if (sabotage <= (count/2)):
+			#return True
+		#else :
+			#return False
+		
+		
+			
+
