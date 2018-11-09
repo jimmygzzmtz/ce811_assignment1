@@ -1,0 +1,92 @@
+import logging
+import logging.handlers
+from player import Bot
+import random
+import itertools
+
+
+class st18580(Bot):
+    def onGameRevealed(self, players, spies):
+        self.spies = spies
+
+    def onMissionAttempt(self, mission, tries, leader):
+        pass
+
+    def Espias(self):
+        n = [x for x in self.game.players if x not in self.spies]
+        return n
+
+    def select(self, players, count):
+        # Makes a random team selection, but doesn't select two spies (based on Espias).
+        return random.sample(self.Espias(), count)
+
+
+    def onTeamSelected(self, leader, team):
+        # Specify the mission and the team selected for it.
+        self.say("For mission %d, you selected %s " % (self.game.turn, team))
+
+    def vote(self, team):
+        # If you are on the team you approve. :)
+        if self in team:
+            return True
+        # If you are Res and the final team proposed = approve
+        if self.game.tries == 4:
+            return True
+
+        # Approve team if no missions have been won. :)
+        if self.spy and self.game.wins < 1:
+            return True
+
+        if self.game.tries == 5 and self.spy:
+            return False
+        # If you are a spy and not on the team but the other spy is, you approve. :)
+        if self.spy and self not in team:
+            return len([y for y in team if y in self.spies]) > 0
+        return True
+        #:)
+
+    def onVoteComplete(self, votes):
+
+        # List with votes of each bot on whether they approved the team or not.
+        self.say("Proposed Team Approved: %s" % self.game.votes)
+
+
+    def sabotage(self):
+
+        # If 2 missions have been sabotaged, you sabotage final mission to win. :)
+        if self.game.losses == 2:
+            return True
+        # If there are only two persons on the team, you don't sabotage the mission. :)
+        if len(self.game.team) <= 2:
+            return False
+        # If two spies on the team, you don't sabotage the mission. :)
+        if len([y for y in self.game.team if y in self.spies]) > 1:
+            return False
+        # If the Res has won once or more, you sabotage. :)
+        if self.game.wins >= 1:
+            return True
+
+        return False
+        #:)
+
+    def onMissionComplete(self, sabotaged):
+
+        # State how many times the mission was sabotaged
+        self.say("Mission was sabotaged %d times" % (sabotaged,))
+        # if self.sabotage() >= 1:
+
+    def onMissionFailed(self, leader, team):
+        self.say("Team denied")
+
+    def announce(self):
+        return {}
+
+    def onAnnouncement(self, source, announcement):
+        pass
+
+    def onMessage(self, source, message):
+        pass
+
+    def onGameComplete(self, win, spies):
+        # Game over: print the results.
+        self.say("Game Over, Mission Win: %s, %s were the spies" % (win, spies))
