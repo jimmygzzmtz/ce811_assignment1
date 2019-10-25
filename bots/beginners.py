@@ -18,7 +18,83 @@ from game import State
 # altogether!
 import random
 
+class JimmyBot(Bot):
+    """Version 0.0.1"""
 
+    suspicionsArr = []
+    players = []
+
+    def onGameRevealed(self, players, spies):
+        #2 spies for 5 players, empty = not a spy
+        self.players = players
+        self.spies = spies
+        self.suspicionsArr = [0,0,0,0,0]
+
+    def select(self, players, count):
+        #id, susp
+
+        memberSpy = [-1,999]
+        memberRes1 = [-1,0]
+        memberRes2 = [-1,0]
+
+        if(self.spy):
+            #find spy with the least suspicion, save id and suspicion value
+            #find resistance member with the most suspicion (to throw the blame), save id and suspicion value
+
+            for i in range(0, len(players)):
+                if(players[i] in self.spies and self.suspicionsArr[i] <= memberSpy[1]):
+                    memberSpy[1] = self.suspicionsArr[i]
+                    memberSpy[0] = i
+                if((players[i] not in self.spies) and self.suspicionsArr[i] >= memberRes1[1]):
+                    memberRes2[0] = memberRes1[0]
+                    memberRes2[1] = memberRes1[1]
+                    memberRes1[1] = self.suspicionsArr[i]
+                    memberRes1[0] = i       
+                if((players[i] not in self.spies) and (self.suspicionsArr[i] < memberRes1[1] and self.suspicionsArr[i] >= memberRes2[1])):
+                    memberRes2[1] = self.suspicionsArr[i]
+                    memberRes2[0] = i
+                
+            #return appropiate amount of teammates
+            spyList = []
+            if(count == 2):
+                spyList = [players[memberSpy[0]],players[memberRes1[0]]]
+            if(count == 3):
+                spyList = [players[memberSpy[0]],players[memberRes1[0]],players[memberRes2[0]]]
+            
+            return spyList
+        
+        else:
+            return [self] + random.sample(self.others(), count - 1)
+
+    def vote(self, team):
+        #always vote yes on the first turn
+        if(self.game.turn == 1 and self.game.tries == 1):
+            return True
+
+        if self.game.tries == 5:
+            return not self.spy
+
+        #if there is a spy in the team, vote yes
+        if(self.spy):
+            for i in range(0, len(team)):
+                if(team[i] in self.spies):
+                    return True
+            return False
+        else:
+            #if a team member is in top 3 o 2 (count) of spies, vote no
+            pass
+        return bool(self == self.game.leader)
+
+    def sabotage(self):
+        return True 
+    
+    def onMissionComplete(self, sabotaged):
+        #there are spies on the mission
+        if(sabotaged != 0):
+            for i in range(0, len(self.game.team)):
+                self.suspicionsArr[self.players.index(self.game.team[i])] += 1
+            self.suspicionsArr[self.players.index(self.game.leader)] += 1
+            
 class Paranoid(Bot):
     """An AI bot that tends to vote everything down!"""
 
