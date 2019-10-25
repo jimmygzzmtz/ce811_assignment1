@@ -19,12 +19,12 @@ from game import State
 import random
 
 class JimmyBot(Bot):
-    """Version 0.0.3"""
+    """Version 0.0.4"""
 
-    suspicionsArr = []
     players = []
     leaderSusp = 1
     teamMemberSusp = 1
+    votedYesSusp = 1
 
     def onGameRevealed(self, players, spies):
         #2 spies for 5 players, empty = not a spy
@@ -34,6 +34,7 @@ class JimmyBot(Bot):
 
         #id, susp
         self.suspicionsBlackboard = [[0,0],[1,0],[2,0],[3,0],[4,0]]
+        self.suspicionsBlackboardSort = [[0,0],[1,0],[2,0],[3,0],[4,0]]
 
     def select(self, players, count):
         #id, susp
@@ -48,18 +49,18 @@ class JimmyBot(Bot):
             #find resistance member with the most suspicion (to throw the blame), save id and suspicion value
 
             for i in range(0, len(players)):
-                if(players[self.suspicionsBlackboard[i][0]] in self.spies):
-                    memberSpy = self.suspicionsBlackboard[i][0]
+                if(players[self.suspicionsBlackboardSort[i][0]] in self.spies):
+                    memberSpy = self.suspicionsBlackboardSort[i][0]
                     break
             
             for i in range(len(players) - 1, -1, -1):
-                if(players[self.suspicionsBlackboard[i][0]] not in self.spies):
-                    memberRes1 = self.suspicionsBlackboard[i][0]
+                if(players[self.suspicionsBlackboardSort[i][0]] not in self.spies):
+                    memberRes1 = self.suspicionsBlackboardSort[i][0]
                     break
             
             for i in range(len(players) - 1, -1, -1):
-                if(players[self.suspicionsBlackboard[i][0]] not in self.spies and memberRes1 != self.suspicionsBlackboard[i][0]):
-                    memberRes2 = self.suspicionsBlackboard[i][0]
+                if(players[self.suspicionsBlackboardSort[i][0]] not in self.spies and memberRes1 != self.suspicionsBlackboardSort[i][0]):
+                    memberRes2 = self.suspicionsBlackboardSort[i][0]
                     break
                 
             #return appropiate amount of teammates
@@ -87,13 +88,13 @@ class JimmyBot(Bot):
             memberRes2 = 1
 
             for i in range(0, len(players)):
-                if(players[self.suspicionsBlackboard[i][0]] != self):
-                    memberRes1 = self.suspicionsBlackboard[i][0]
+                if(players[self.suspicionsBlackboardSort[i][0]] != self):
+                    memberRes1 = self.suspicionsBlackboardSort[i][0]
                     break
             
             for i in range(0, len(players)):
-                if(players[self.suspicionsBlackboard[i][0]] != self and memberRes1 != self.suspicionsBlackboard[i][0]):
-                    memberRes2 = self.suspicionsBlackboard[i][0]
+                if(players[self.suspicionsBlackboardSort[i][0]] != self and memberRes1 != self.suspicionsBlackboardSort[i][0]):
+                    memberRes2 = self.suspicionsBlackboardSort[i][0]
                     break
 
             if(count == 2):
@@ -126,7 +127,7 @@ class JimmyBot(Bot):
         else:
             #if a team member is in top 3 o 2 (count) of suspicions, vote no
             for i in range(0, len(team)):
-                if(team[i] in self.suspicionsBlackboard[((len(self.players)) - (len(team))):((len(self.players)) - 1)]):
+                if(team[i] in self.suspicionsBlackboardSort[((len(self.players)) - (len(team))):((len(self.players)) - 1)]):
                     return False
             else:
                 return True
@@ -135,13 +136,23 @@ class JimmyBot(Bot):
         return True 
     
     def onMissionComplete(self, sabotaged):
+        #print(self.game.votes)
+
         #there are spies on the mission
         if(sabotaged != 0):
             for i in range(0, len(self.game.team)):
                 self.suspicionsBlackboard[self.players.index(self.game.team[i])][1] += self.leaderSusp
             self.suspicionsBlackboard[self.players.index(self.game.leader)][1] += self.teamMemberSusp
-        
-        self.suspicionsBlackboard = sorted(self.suspicionsBlackboard, key=lambda player: player[1])
+
+        for i in range(0, len(self.game.votes)):
+            if(self.game.votes[i] == True):
+                self.suspicionsBlackboard[i][1] += self.votedYesSusp
+            
+        self.suspicionsBlackboardSort = sorted(self.suspicionsBlackboard, key=lambda player: player[1])
+    
+    def onGameComplete(self, win, spies):
+        #print(self.suspicionsBlackboardSort)
+        pass
     
             
 class Paranoid(Bot):
