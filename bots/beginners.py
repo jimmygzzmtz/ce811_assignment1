@@ -19,7 +19,7 @@ from game import State
 import random
 
 class JimmyBot(Bot):
-    """Version 0.0.1"""
+    """Version 0.0.2"""
 
     suspicionsArr = []
     players = []
@@ -28,39 +28,54 @@ class JimmyBot(Bot):
         #2 spies for 5 players, empty = not a spy
         self.players = players
         self.spies = spies
-        self.suspicionsArr = [0,0,0,0,0]
+        #self.suspicionsArr = [0,0,0,0,0]
+
+        #id, susp
+        self.suspicionsBlackboard = [[0,0],[1,0],[2,0],[3,0],[4,0]]
 
     def select(self, players, count):
         #id, susp
 
-        memberSpy = [-1,999]
-        memberRes1 = [-1,0]
-        memberRes2 = [-1,0]
+        memberSpy = -1
+        memberRes1 = -1
+        memberRes2 = -1
 
         if(self.spy):
             #find spy with the least suspicion, save id and suspicion value
             #find resistance member with the most suspicion (to throw the blame), save id and suspicion value
 
             for i in range(0, len(players)):
-                if(players[i] in self.spies and self.suspicionsArr[i] <= memberSpy[1]):
-                    memberSpy[1] = self.suspicionsArr[i]
-                    memberSpy[0] = i
-                if((players[i] not in self.spies) and self.suspicionsArr[i] >= memberRes1[1]):
-                    memberRes2[0] = memberRes1[0]
-                    memberRes2[1] = memberRes1[1]
-                    memberRes1[1] = self.suspicionsArr[i]
-                    memberRes1[0] = i       
-                if((players[i] not in self.spies) and (self.suspicionsArr[i] < memberRes1[1] and self.suspicionsArr[i] >= memberRes2[1])):
-                    memberRes2[1] = self.suspicionsArr[i]
-                    memberRes2[0] = i
+                if(players[self.suspicionsBlackboard[i][0]] in self.spies):
+                    memberSpy = self.suspicionsBlackboard[i][0]
+                    break
+            
+            for i in range(len(players) - 1, -1, -1):
+                if(players[self.suspicionsBlackboard[i][0]] not in self.spies):
+                    memberRes1 = self.suspicionsBlackboard[i][0]
+                    break
+            
+            for i in range(len(players) - 1, -1, -1):
+                if(players[self.suspicionsBlackboard[i][0]] not in self.spies and memberRes1 != self.suspicionsBlackboard[i][0]):
+                    memberRes2 = self.suspicionsBlackboard[i][0]
+                    break
                 
             #return appropiate amount of teammates
             spyList = []
             if(count == 2):
-                spyList = [players[memberSpy[0]],players[memberRes1[0]]]
+                spyList = [players[memberSpy],players[memberRes1]]
             if(count == 3):
-                spyList = [players[memberSpy[0]],players[memberRes1[0]],players[memberRes2[0]]]
+                spyList = [players[memberSpy],players[memberRes1],players[memberRes2]]
             
+            """ duplicate debugging
+            print(spyList)
+
+            if(any(spyList.count(x) > 1 for x in spyList)):
+                print(self.spies)
+                print(self.suspicionsBlackboard)
+                print(spyList)
+                print(memberSpy)
+            
+            """
             return spyList
         
         else:
@@ -92,8 +107,11 @@ class JimmyBot(Bot):
         #there are spies on the mission
         if(sabotaged != 0):
             for i in range(0, len(self.game.team)):
-                self.suspicionsArr[self.players.index(self.game.team[i])] += 1
-            self.suspicionsArr[self.players.index(self.game.leader)] += 1
+                self.suspicionsBlackboard[self.players.index(self.game.team[i])][1] += 1
+            self.suspicionsBlackboard[self.players.index(self.game.leader)][1] += 1
+        
+        self.suspicionsBlackboard = sorted(self.suspicionsBlackboard, key=lambda player: player[1])
+    
             
 class Paranoid(Bot):
     """An AI bot that tends to vote everything down!"""
