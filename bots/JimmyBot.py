@@ -28,7 +28,7 @@ class JimmyBot(Bot):
 
     __metaclass__ = core.Observable
 
-    """Version 0.0.5"""
+    """Version 0.0.6"""
 
     players = []
     leaderSusp = 3
@@ -74,8 +74,8 @@ class JimmyBot(Bot):
 
         if(self.spy):
             #find resistance member with the most suspicion (to throw the blame), save id and suspicion value
-            memberRes1 = 0
-            memberRes2 = 1
+            memberRes1 = -1
+            memberRes2 = -1
 
             for i in range(len(players) - 1, -1, -1):
                 if(players[self.suspicionsBlackboardSort[i][0]] not in self.spies):
@@ -91,7 +91,6 @@ class JimmyBot(Bot):
                 teamList = [self,players[memberRes1]]
             if(count == 3):
                 teamList = [self,players[memberRes1],players[memberRes2]]
-
             
             """ duplicate debugging
             print(spyList)
@@ -109,8 +108,8 @@ class JimmyBot(Bot):
         else:
             #include players with least suspicion
 
-            memberRes1 = 0
-            memberRes2 = 1
+            memberRes1 = -1
+            memberRes2 = -1
 
             for i in range(0, len(players)):
                 if(players[self.suspicionsBlackboardSort[i][0]] != self):
@@ -149,25 +148,28 @@ class JimmyBot(Bot):
         if(self.game.turn == 1 and self.game.tries == 1):
             return True
 
-        if self.game.tries == 5:
-            return True
-
+        #always vote yes when leader
         if(self == self.game.leader):
             return True
+        
+        #if on last try and spy, return false, otherwise true
+        if self.game.tries == 5:
+            return self.spy
 
         #if there is a spy in the team, vote yes
         if(self.spy):
             for i in range(0, len(team)):
                 if(team[i] in self.spies):
                     return True
+
             return False
         else:
-            #if a team member is in top 3 o 2 (count) of suspicions, vote no
+            #if a team member is in top 3 or 2 of suspicions, and is bigger than 0, vote no
             for i in range(0, len(team)):
-                if(team[i] in self.suspicionsBlackboardSort[((len(self.players)) - (len(team))):((len(self.players)) - 1)]):
+                if(team[i] in self.suspicionsBlackboardSort[((len(self.players)) - (len(team))):((len(self.players)) - 1)] and self.suspicionsBlackboard[i][1] != 0):
                     return False
-            else:
-                return True
+                    
+            return True
 
     def onVoteComplete(self, votes):
         """Callback once the whole team has voted.
@@ -195,12 +197,12 @@ class JimmyBot(Bot):
         #there are spies on the mission
         if(sabotaged != 0):
             for i in range(0, len(self.game.team)):
-                self.suspicionsBlackboard[self.players.index(self.game.team[i])][1] += self.leaderSusp
-            self.suspicionsBlackboard[self.players.index(self.game.leader)][1] += self.teamMemberSusp
+                self.suspicionsBlackboard[self.players.index(self.game.team[i])][1] += self.teamMemberSusp
+            self.suspicionsBlackboard[self.players.index(self.game.leader)][1] += self.leaderSusp
 
-        for i in range(0, len(self.game.votes)):
-            if(self.game.votes[i] == True):
-                self.suspicionsBlackboard[i][1] += self.votedYesSusp
+            for i in range(0, len(self.game.votes)):
+                if(self.game.votes[i] == True):
+                    self.suspicionsBlackboard[i][1] += self.votedYesSusp
             
         self.suspicionsBlackboardSort = sorted(self.suspicionsBlackboard, key=lambda player: player[1])
 
