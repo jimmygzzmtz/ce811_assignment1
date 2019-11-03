@@ -112,3 +112,6 @@ dmypy.json
 
 # Logs
 logs/
+
+#DataGatheringOutput
+DataGatheringOutput.csv
