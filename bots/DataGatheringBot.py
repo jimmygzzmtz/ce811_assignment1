@@ -258,10 +258,17 @@ class DataGatheringBot(Bot):
             for i in range(0, len(self.players)):
                 if(str(spy)[2:] == self.trainingData[i][0]):
                     self.trainingData[i][226] = 1
+        
+        labels = [['player','leader11','member111','member211','member311','member411','member511','completed','sabotaged','vote','leader12','member112','member212','member312','member412','member512','completed','sabotaged','vote','leader13','member113','member213','member313','member413','member513','completed','sabotaged','vote','leader14','member114','member214','member314','member414','member514','completed','sabotaged','vote','leader15','member115','member215','member315','member415','member515','completed','sabotaged','vote','leader21','member121','member221','member321','member421','member521','completed','sabotaged','vote','leader22','member122','member222','member322','member422','member522','completed','sabotaged','vote','leader23','member123','member223','member323','member423','member523','completed','sabotaged','vote','leader24','member124','member224','member324','member424','member524','completed','sabotaged','vote','leader25','member125','member225','member325','member425','member525','completed','sabotaged','vote','leader31','member131','member231','member331','member431','member531','completed','sabotaged','vote','leader32','member132','member232','member332','member432','member532','completed','sabotaged','vote','leader33','member133','member233','member333','member433','member533','completed','sabotaged','vote','leader34','member134','member234','member334','member434','member534','completed','sabotaged','vote','leader35','member135','member235','member335','member435','member535','completed','sabotaged','vote','leader41','member141','member241','member341','member441','member541','completed','sabotaged','vote','leader42','member142','member242','member342','member442','member542','completed','sabotaged','vote','leader43','member143','member243','member343','member443','member543','completed','sabotaged','vote','leader44','member144','member244','member344','member444','member544','completed','sabotaged','vote','leader45','member145','member245','member345','member445','member545','completed','sabotaged','vote','leader51','member151','member251','member351','member451','member551','completed','sabotaged','vote','leader52','member152','member252','member352','member452','member552','completed','sabotaged','vote','leader53','member153','member253','member353','member453','member553','completed','sabotaged','vote','leader54','member154','member254','member354','member454','member554','completed','sabotaged','vote','leader55','member155','member255','member355','member455','member555','completed','sabotaged','vote','spy']]
+
+        #writableList = labels + self.trainingData
+        #print(writableList)
+
+        writableList = labels + self.trainingData
 
         with open("dataGatheringOutput.csv", "a", newline="") as f:
             writer = csv.writer(f)
-            writer.writerows(self.trainingData)
+            writer.writerows(writableList)
 
         pass
 
