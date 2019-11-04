@@ -6,6 +6,8 @@ import random
 
 import csv
 
+import os
+
 from player import Bot
 
 class DataGatheringBot(Bot):
@@ -39,6 +41,7 @@ class DataGatheringBot(Bot):
         @param players  List of all players in the game including you.
         @param spies    List of players that are spies, or an empty list.
         """
+
         #name, votes, role
         #self.trainingData = [['name',[],[],0],['name',[],[],0],['name',[],[],0],['name',[],[],0],['name',[],[],0]]
         self.trainingData = []
@@ -264,9 +267,11 @@ class DataGatheringBot(Bot):
         #writableList = labels + self.trainingData
         #print(writableList)
 
-        writableList = labels + self.trainingData
-
         with open("dataGatheringOutput.csv", "a", newline="") as f:
+            if(os.stat("dataGatheringOutput.csv").st_size == 0):
+                writableList = labels + self.trainingData
+            else:   
+                writableList = self.trainingData
             writer = csv.writer(f)
             writer.writerows(writableList)
 
