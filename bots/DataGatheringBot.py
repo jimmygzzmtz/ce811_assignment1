@@ -41,22 +41,12 @@ class DataGatheringBot(Bot):
         @param players  List of all players in the game including you.
         @param spies    List of players that are spies, or an empty list.
         """
-
-        #name, votes, role
-        #self.trainingData = [['name',[],[],0],['name',[],[],0],['name',[],[],0],['name',[],[],0],['name',[],[],0]]
         self.trainingData = []
         self.players = players
-        #example: ['RandomBot',[['Leader',['TeamMember1','TeamMember2',etc],Mission,Round,Sabotaged,Vote],...],[[['TeamMember1','TeamMember2',etc],Mission,Round,Sabotaged,Vote],...],Spy]
-
-        #names = [str(player)[2:] for player in players]
-
-        #print(str(players[0])[2:])
 
         for i in range(0, len(players)):
-            #print(str(players[i])[2:])
-            #name, then per mission: leader, member, completed, vote, sabotaged, then at the end: spy
-            #playerTemplate = [str(players[i])[2:],'leader11','member111','member211','member311','member411','member511',-1,-1,-1,'leader12','member112','member212','member312','member412','member512',-1,-1,-1,'leader13','member113','member213','member313','member413','member513',-1,-1,-1,'leader14','member114','member214','member314','member414','member514',-1,-1,-1,'leader15','member115','member215','member315','member415','member515',-1,-1,-1,'leader21','member121','member221','member321','member421','member521',-1,-1,-1,'leader22','member122','member222','member322','member422','member522',-1,-1,-1,'leader23','member123','member223','member323','member423','member523',-1,-1,-1,'leader24','member124','member224','member324','member424','member524',-1,-1,-1,'leader25','member125','member225','member325','member425','member525',-1,-1,-1,'leader31','member131','member231','member331','member431','member531',-1,-1,-1,'leader32','member132','member232','member332','member432','member532',-1,-1,-1,'leader33','member133','member233','member333','member433','member533',-1,-1,-1,'leader34','member134','member234','member334','member434','member534',-1,-1,-1,'leader35','member135','member235','member335','member435','member535',-1,-1,-1,'leader41','member141','member241','member341','member441','member541',-1,-1,-1,'leader42','member142','member242','member342','member442','member542',-1,-1,-1,'leader43','member143','member243','member343','member443','member543',-1,-1,-1,'leader44','member144','member244','member344','member444','member544',-1,-1,-1,'leader45','member145','member245','member345','member445','member545',-1,-1,-1,'leader51','member151','member251','member351','member451','member551',-1,-1,-1,'leader52','member152','member252','member352','member452','member552',-1,-1,-1,'leader53','member153','member253','member353','member453','member553',-1,-1,-1,'leader54','member154','member254','member354','member454','member554',-1,-1,-1,'leader55','member155','member255','member355','member455','member555',-1,-1,-1,0]
-            playerTemplate = [str(players[i])[2:],-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,0]
+            #player, voted yes sabotaged, voted no sabotaged, votes yes succeeded, voted no succeeded, votes yes failed, voted no failed, spy
+            playerTemplate = [str(players[i])[2:],0,0,0,0,0,0,0]
             self.trainingData.append(playerTemplate)
         
         #print(self.trainingData)
@@ -99,37 +89,6 @@ class DataGatheringBot(Bot):
         """Callback once the whole team has voted.
         @param votes        Boolean votes for each player (ordered).
         """
-
-        pos = 1
-
-        #do turn and tries - 1 first
-        turn = self.game.turn - 1
-        tries = self.game.tries - 1
-
-        pos = pos + turn*45 + tries*9
-
-        OriginalPos = pos
-        
-        for i in range(0, len(self.players)):
-            pos = OriginalPos
-            self.trainingData[i][pos] = str(self.game.leader)[2:]
-            
-            memberPos = pos + 1
-            for j in range(0, len(self.game.team)):
-                self.trainingData[i][memberPos + j] = str(self.game.team[j])[2:]
-
-            #completed
-            pos = pos + 6
-            self.trainingData[i][pos] = 0
-
-            #voted
-            pos = pos + 2
-            if(self.game.votes[i] == True):
-                intVotes = 0
-            else:
-                intVotes = 1
-            self.trainingData[i][pos] = intVotes
-
         pass
 
     def sabotage(self):
@@ -143,51 +102,17 @@ class DataGatheringBot(Bot):
         """Callback once the players have been chosen.
         @param sabotaged    Integer how many times the mission was sabotaged.
         """
-
-        #voteList = [str(self.game.leader)[2:],[str(player)[2:] for player in self.game.team],self.game.turn,self.game.tries,sabotaged,True]
-
-        #find in votes the position that the converted string matches the name from trainingdata
-
-        #turn = mission
-        #tries = attempt
-
-        pos = 1
-
-        #do turn and tries - 1 first
-        turn = self.game.turn - 1
-        tries = self.game.tries - 1
-
-        pos = pos + turn*45 + tries*9
-
-        #print(self.game.turn)
-
-        #print(self.trainingData[0][pos])
-
-        OriginalPos = pos
-        
         for i in range(0, len(self.players)):
-            pos = OriginalPos
-            self.trainingData[i][pos] = str(self.game.leader)[2:]
-            
-            memberPos = pos + 1
-            for j in range(0, len(self.game.team)):
-                self.trainingData[i][memberPos + j] = str(self.game.team[j])[2:]
-
-            #completed
-            pos = pos + 6
-            self.trainingData[i][pos] = 1
-
-            #sabotaged
-            pos = pos + 1
-            self.trainingData[i][pos] = sabotaged
-
-            #voted
-            pos = pos + 1
-            if(self.game.votes[i] == True):
-                intVotes = 0
-            else:
-                intVotes = 1
-            self.trainingData[i][pos] = intVotes
+            if(sabotaged == True):
+                if(self.game.votes[i] == True):
+                    self.trainingData[i][1] += 1
+                else:
+                    self.trainingData[i][2] += 1
+            if(sabotaged == False):
+                if(self.game.votes[i] == True):
+                    self.trainingData[i][3] += 1
+                else:
+                    self.trainingData[i][4] += 1
 
         pass
 
@@ -196,6 +121,11 @@ class DataGatheringBot(Bot):
         @param leader       The player responsible for selection.
         @param team         The list of players chosen for the mission.
         """
+        for i in range(0, len(self.players)):
+            if(self.game.votes[i] == True):
+                self.trainingData[i][5] += 1
+            else:
+                self.trainingData[i][6] += 1
         pass
 
     def announce(self):
@@ -242,39 +172,79 @@ class DataGatheringBot(Bot):
         @param spies        List of only the spies in the game.
         """
 
-        """
         for spy in spies:
             for i in range(0, len(self.players)):
                 if(str(spy)[2:] == self.trainingData[i][0]):
-                    self.trainingData[i][2] = 1
+                    self.trainingData[i][7] = 1
+        
+        labels = [['player','sabotagedRatio','notSabotagedRatio','failedRatio','isSpy']]
 
+        ratioData = []
 
         #print(self.trainingData)
 
-        with open("dataGatheringOutput.csv", "a", newline="") as f:
-            writer = csv.writer(f)
-            writer.writerows(self.trainingData)
-        """
+        playerList = []
 
-        #print(self.trainingData[0][226])
+        with open("playerList.csv", "a") as csvfile:
+            pass
 
-        for spy in spies:
-            for i in range(0, len(self.players)):
-                if(str(spy)[2:] == self.trainingData[i][0]):
-                    self.trainingData[i][226] = 1
-        
-        labels = [['player','leader11','member111','member211','member311','member411','member511','completed','sabotaged','vote','leader12','member112','member212','member312','member412','member512','completed','sabotaged','vote','leader13','member113','member213','member313','member413','member513','completed','sabotaged','vote','leader14','member114','member214','member314','member414','member514','completed','sabotaged','vote','leader15','member115','member215','member315','member415','member515','completed','sabotaged','vote','leader21','member121','member221','member321','member421','member521','completed','sabotaged','vote','leader22','member122','member222','member322','member422','member522','completed','sabotaged','vote','leader23','member123','member223','member323','member423','member523','completed','sabotaged','vote','leader24','member124','member224','member324','member424','member524','completed','sabotaged','vote','leader25','member125','member225','member325','member425','member525','completed','sabotaged','vote','leader31','member131','member231','member331','member431','member531','completed','sabotaged','vote','leader32','member132','member232','member332','member432','member532','completed','sabotaged','vote','leader33','member133','member233','member333','member433','member533','completed','sabotaged','vote','leader34','member134','member234','member334','member434','member534','completed','sabotaged','vote','leader35','member135','member235','member335','member435','member535','completed','sabotaged','vote','leader41','member141','member241','member341','member441','member541','completed','sabotaged','vote','leader42','member142','member242','member342','member442','member542','completed','sabotaged','vote','leader43','member143','member243','member343','member443','member543','completed','sabotaged','vote','leader44','member144','member244','member344','member444','member544','completed','sabotaged','vote','leader45','member145','member245','member345','member445','member545','completed','sabotaged','vote','leader51','member151','member251','member351','member451','member551','completed','sabotaged','vote','leader52','member152','member252','member352','member452','member552','completed','sabotaged','vote','leader53','member153','member253','member353','member453','member553','completed','sabotaged','vote','leader54','member154','member254','member354','member454','member554','completed','sabotaged','vote','leader55','member155','member255','member355','member455','member555','completed','sabotaged','vote','spy']]
+        with open('playerList.csv', 'r') as csvfile:
+            if(os.stat("playerList.csv").st_size != 0):
+                playerList = list(csv.reader(csvfile))[0]
+            #print('read playerlist')
+            #print(list(csv.reader(csvfile)))
+            pass
 
-        #writableList = labels + self.trainingData
-        #print(writableList)
+
+        for i in range(0, len(self.trainingData)):
+            sabotagedRatio = 0
+            notSabotagedRatio = 0
+            failedRatio = 0
+            nameInt = 0
+
+            name = self.trainingData[i][0]
+            if(name != 'DataGatheringBot'):
+                if(name not in playerList):
+                    playerList.append(name)
+                nameInt = playerList.index(name)
+
+            votedYesSabotaged = self.trainingData[i][1]
+            votedNoSabotaged = self.trainingData[i][2]
+            sabotagedTotal = votedYesSabotaged + votedNoSabotaged
+            if(sabotagedTotal != 0):
+                sabotagedRatio = (votedYesSabotaged / (sabotagedTotal))
+
+            votedYesNotSabotaged = self.trainingData[i][3]
+            votedNoNotSabotaged = self.trainingData[i][4]
+            notSabotagedTotal = votedYesNotSabotaged + votedNoNotSabotaged
+            if(notSabotagedTotal != 0):
+                notSabotagedRatio = (votedYesNotSabotaged / (notSabotagedTotal))
+
+            votedYesFailed = self.trainingData[i][5]
+            votedNoFailed = self.trainingData[i][6]
+            failedTotal = votedYesFailed + votedNoFailed
+            if(failedTotal != 0):
+                failedRatio = (votedYesFailed / (failedTotal))
+
+            isSpy = self.trainingData[i][7]
+
+            ratioPlayer = [nameInt,sabotagedRatio,notSabotagedRatio,failedRatio,isSpy]
+            
+            if(name != 'DataGatheringBot'):
+                ratioData.append(ratioPlayer)
 
         with open("dataGatheringOutput.csv", "a", newline="") as f:
             if(os.stat("dataGatheringOutput.csv").st_size == 0):
-                writableList = labels + self.trainingData
+                writableList = labels + ratioData
             else:   
-                writableList = self.trainingData
+                writableList = ratioData
             writer = csv.writer(f)
             writer.writerows(writableList)
+        
+        #print(playerList)
+        with open("playerList.csv", "w", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow(playerList)
 
         pass
 

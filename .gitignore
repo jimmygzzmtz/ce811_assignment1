@@ -113,5 +113,6 @@ dmypy.json
 # Logs
 logs/
 
-#DataGatheringOutput
+#CSV
 DataGatheringOutput.csv
+playerList.csv
