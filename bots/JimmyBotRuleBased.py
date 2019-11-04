@@ -5,7 +5,7 @@ import core
 
 from player import Bot
 
-class JimmyBot(Bot):
+class JimmyBotRuleBased(Bot):
     """This is the base class for your AI in THE RESISTANCE.  To get started:
          1) Derive this class from a new file that will contain your AI.  See
             bots.py for simple stock AI examples.
@@ -211,6 +211,22 @@ class JimmyBot(Bot):
         @param leader       The player responsible for selection.
         @param team         The list of players chosen for the mission.
         """
+        
+        spyCheck = False
+
+        for i in range(0, len(team)):
+                if(team[i] in self.suspicionsBlackboardSort[((len(self.players)) - (len(team))):((len(self.players)) - 1)] and self.suspicionsBlackboard[i][1] >= 5):
+                    spyCheck = True
+        
+        #spyCheck = False
+        
+        if(spyCheck == True):
+            self.suspicionsBlackboard[self.players.index(self.game.leader)][1] += self.leaderSusp
+
+            for i in range(0, len(self.game.votes)):
+                if(self.game.votes[i] == True):
+                    self.suspicionsBlackboard[i][1] += self.votedYesSusp
+            
         pass
 
     def announce(self):
@@ -256,6 +272,7 @@ class JimmyBot(Bot):
         @param win          Boolean true if the Resistance won.
         @param spies        List of only the spies in the game.
         """
+        #print(self.suspicionsBlackboardSort)
         pass
 
     def others(self):
