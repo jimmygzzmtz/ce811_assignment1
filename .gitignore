@@ -116,3 +116,6 @@ logs/
 #CSV
 DataGatheringOutput.csv
 playerList.csv
+
+#Models
+*pickle.pkl
